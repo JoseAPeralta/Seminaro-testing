@@ -1,6 +1,11 @@
 {
     "name": "mi-app-ejemplo",
     "version": "1.0.0",
+    "description": "",
+    "license": "ISC",
+    "author": "",
+    "type": "commonjs",
+    "main": "index.js",
     "scripts": {
         "lint": "eslint 'script.js'",
         "lint:fix": "eslint 'script.js' --fix",
@@ -13,8 +18,8 @@
         "lodash": "4.17.4"
     },
     "devDependencies": {
-        "eslint": "^9.x",
-        "prettier": "^3.x",
+        "eslint": "^10.0.0",
+        "prettier": "^3.8.1",
         "vitest": "^4.0.18"
     }
 }
