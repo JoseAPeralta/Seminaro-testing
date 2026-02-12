@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: '24'
       - name: Instalar dependencias
-        run: npm ci
+        run: npm install
       - name: Ejecutar ESLint con autocorrección
         # `--fix` aplica correcciones automáticas conocidas[object Object]
         run: npx eslint . --fix
