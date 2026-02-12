@@ -13,7 +13,7 @@ jobs:
         uses: jakejarvis/lighthouse-action@v0.3.2
         with:
           # URL del sitio desplegado en GitHub Pages (reemplazar usuario/repositorio)
-          url: 'https://joseaperalta.github.io/Seminaro-testing/'
+          url: https://joseaperalta.github.io/Seminaro-testing/
       - name: Guardar reporte
         uses: actions/upload-artifact@v4
         with:
