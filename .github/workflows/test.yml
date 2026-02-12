@@ -1,0 +1,22 @@
+name: Ejecutar tests con Vitest
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+jobs:
+  test:
+    name: Vitest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Instalar dependencias
+        run: npm ci
+      - name: Ejecutar pruebas
+        # Vitest usará reporter para GitHub Actions automáticamente (anota fallos en el log)[object Object]
+        run: npm test
