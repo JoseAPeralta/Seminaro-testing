@@ -1,9 +1,11 @@
+/* style.css */
 body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    padding: 50px;
+    font-family: Arial
+        /* COMENTARIO_ERROR: falta punto y coma al final de la propiedad */
+        background: white;
 }
 
 h1 {
-    color: #333;
+    color: red
+        /* COMENTARIO_ERROR: falta punto y coma */
 }
