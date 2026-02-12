@@ -1,4 +1,4 @@
-name: Deploy Pages + Lighthouse Report (static)
+name: Deploy Pages + Lighthouse Report
 
 on:
   push:
