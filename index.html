@@ -1,16 +1,18 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="es">
 
 <head>
     <meta charset="UTF-8">
-    <title>Aplicación de Ejemplo</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Sitio Ejemplo</title>
+    <!-- COMENTARIO_ERROR: ruta incorrecta (enlace roto) -->
+    <link rel="stylesheet" href="estilos.css"> <!-- debería ser style.css -->
 </head>
 
 <body>
-    <h1>¡Hola, GitHub Pages2!</h1>
-    <script type="module" src="script.js"></script>
+    <h1 id="welcome">¡Bienvenido!</h1>
+    <!-- COMENTARIO_ERROR: uso inseguro de innerHTML con datos no sanitizados -->
+    <script src="script.js"></script>
 </body>
-
 
 </html>
