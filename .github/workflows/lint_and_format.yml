@@ -16,10 +16,10 @@ jobs:
         with:
           node-version: '24'
       - name: Instalar dependencias
-        run: npm install
+        run: npm ci
       - name: Ejecutar ESLint con autocorrección
         # `--fix` aplica correcciones automáticas conocidas[object Object]
-        run: npx eslint . --fix
+        run: npx eslint "**/*.{js,mjs,cjs}"
       - name: Ejecutar Prettier para formateo
         # `--write` reescribe los archivos aplicando formato[object Object]
         run: npx prettier --write .
