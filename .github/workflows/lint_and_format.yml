@@ -1,0 +1,28 @@
+name: Lint y Format
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+jobs:
+  eslint_prettier:
+    name: ESLint + Prettier
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v5
+      - name: Instalar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Instalar dependencias
+        run: npm ci
+      - name: Ejecutar ESLint con autocorrección
+        # `--fix` aplica correcciones automáticas conocidas[object Object]
+        run: npx eslint . --fix
+      - name: Ejecutar Prettier para formateo
+        # `--write` reescribe los archivos aplicando formato[object Object]
+        run: npx prettier --write .
+      - name: Reportar diferencias (opcional)
+        # Mostrar cambios si existieran (para visualización en CI)
+        run: git diff --exit-code || echo "Código formateado automáticamente."
