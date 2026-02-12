@@ -5,17 +5,30 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+  statuses: write
+
 jobs:
   lighthouse:
     runs-on: ubuntu-latest
     steps:
-      - name: Audit URLs with Lighthouse CI
-        uses: treosh/lighthouse-ci-action@v12
+      - name: Checkout
+        uses: actions/checkout@v5
         with:
-          # URL del sitio desplegado en GitHub Pages (reemplazar usuario/repositorio)
+          # En PR, audita el commit real del PR (no el merge commit)
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+
+      - name: Audit URLs using Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v12
+        env:
+          # Evita el error de "git rev-parse HEAD" aunque haya edge cases
+          LHCI_BUILD_CONTEXT__CURRENT_HASH: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          LHCI_BUILD_CONTEXT__CURRENT_BRANCH: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
+          LHCI_BUILD_CONTEXT__GITHUB_REPO_SLUG: ${{ github.repository }}
+        with:
           urls: |
             https://joseaperalta.github.io/Seminaro-testing/
-          # Guarda el reporte como Artifact dentro del run de Actions
           uploadArtifacts: true
-          # (Opcional) Sube el reporte a un storage público temporal (te da un link)
           temporaryPublicStorage: true
+          artifactName: lighthouse-results
