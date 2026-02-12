@@ -1,0 +1,21 @@
+name: Auditoría con Lighthouse
+on:
+  push:
+    branches: [ main ]
+jobs:
+  audit:
+    name: Lighthouse Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Auditoría Lighthouse
+        uses: jakejarvis/lighthouse-action@v0.3.2
+        with:
+          # URL del sitio desplegado en GitHub Pages (reemplazar usuario/repositorio)
+          url: 'https://joseaperalta.github.io/Seminaro-testing/'
+      - name: Guardar reporte
+        uses: actions/upload-artifact@v3
+        with:
+          name: lighthouse-report
+          path: './report'
