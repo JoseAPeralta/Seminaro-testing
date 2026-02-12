@@ -6,7 +6,11 @@
         "lint:fix": "eslint 'script.js' --fix",
         "format": "prettier --write .",
         "test": "vitest run",
-        "build": "vite build"
+        "build": "vite build",
+        "optimize:images": "imagemin assets/* -o assets-optimized/"
+    },
+    "dependencies": {
+        "lodash": "4.17.4"
     },
     "devDependencies": {
         "eslint": "^9.x",
