@@ -1,0 +1,16 @@
+{
+    "name": "mi-app-ejemplo",
+    "version": "1.0.0",
+    "scripts": {
+        "lint": "eslint 'script.js'",
+        "lint:fix": "eslint 'script.js' --fix",
+        "format": "prettier --write .",
+        "test": "vitest run",
+        "build": "vite build"
+    },
+    "devDependencies": {
+        "eslint": "^9.x",
+        "prettier": "^3.x",
+        "vitest": "^4.0.18"
+    }
+}
