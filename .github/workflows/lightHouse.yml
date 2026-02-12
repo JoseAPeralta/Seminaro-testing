@@ -1,34 +1,74 @@
-name: Lighthouse (LHCI)
+name: Deploy Pages + Lighthouse Report (static)
+
 on:
   push:
-    branches: [main]
-  pull_request:
     branches: [main]
 
 permissions:
   contents: read
-  statuses: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
 
 jobs:
-  lighthouse:
+  build_report:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-        with:
-          # En PR, audita el commit real del PR (no el merge commit)
-          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
 
-      - name: Audit URLs using Lighthouse CI
-        uses: treosh/lighthouse-ci-action@v12
-        env:
-          # Evita el error de "git rev-parse HEAD" aunque haya edge cases
-          LHCI_BUILD_CONTEXT__CURRENT_HASH: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
-          LHCI_BUILD_CONTEXT__CURRENT_BRANCH: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
-          LHCI_BUILD_CONTEXT__GITHUB_REPO_SLUG: ${{ github.repository }}
+      - name: Setup Node (para LHCI)
+        uses: actions/setup-node@v4
         with:
-          urls: |
-            https://joseaperalta.github.io/Seminaro-testing/
-          uploadArtifacts: true
-          temporaryPublicStorage: true
-          artifactName: lighthouse-results
+          node-version: "20"
+
+      - name: Preparar carpeta de publicación (site/)
+        run: |
+          mkdir -p site
+          # Copia todo el sitio al staging dir, excluyendo cosas no publicables
+          rsync -av --delete \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='node_modules' \
+            --exclude='.lighthouseci' \
+            --exclude='report' \
+            ./ site/
+
+      - name: Servir sitio con Python (background)
+        run: |
+          python3 -m http.server 8000 --bind 127.0.0.1 --directory site &
+          sleep 2
+
+      - name: Generar Lighthouse Report en /report/
+        run: |
+          mkdir -p site/report
+          # Target filesystem: escribe reportes en disco (sin servidor LHCI)
+          # outputDir + reportFilenamePattern son opciones del target filesystem. :contentReference[oaicite:1]{index=1}
+          npx --yes @lhci/cli autorun \
+            --collect.url=http://127.0.0.1:8000/ \
+            --collect.numberOfRuns=1 \
+            --upload.target=filesystem \
+            --upload.outputDir=./site/report \
+            --upload.reportFilenamePattern=index.%%EXTENSION%%
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build_report
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
