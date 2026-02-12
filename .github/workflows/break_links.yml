@@ -9,11 +9,16 @@ jobs:
     name: Link Checker
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-      - name: Instalar herramientas
-        run: npm install -g linkinator http-server
-      - name: Servir sitio
-        run: |
-          http-server -p 8000 . &
-          npx linkinator http://localhost:8000 --retryErrors
+          - name: Checkout
+            uses: actions/checkout@v5
+          - name: Setup Node.js (para linkinator)
+            uses: actions/setup-node@v4
+            with:
+              node-version: "24"
+          - name: Servir sitio con Python (background)
+            run: |
+              python3 -m http.server 8000 --bind 127.0.0.1 &
+              sleep 2
+          - name: Comprobar enlaces con Linkinator
+            run: |
+              npx --yes linkinator http://127.0.0.1:8000 --recurse --retryErrors
