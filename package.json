@@ -1,25 +1,29 @@
 {
-    "name": "mi-app-ejemplo",
-    "version": "1.0.0",
-    "description": "",
-    "license": "ISC",
-    "author": "",
-    "type": "commonjs",
-    "main": "index.js",
-    "scripts": {
-        "lint": "eslint 'script.js'",
-        "lint:fix": "eslint 'script.js' --fix",
-        "format": "prettier --write .",
-        "test": "vitest run",
-        "build": "vite build",
-        "optimize:images": "imagemin assets/* -o assets-optimized/"
-    },
-    "dependencies": {
-        "lodash": "4.17.4"
-    },
-    "devDependencies": {
-        "eslint": "^10.0.0",
-        "prettier": "^3.8.1",
-        "vitest": "^4.0.18"
-    }
+  "name": "test",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint 'script.js'",
+    "lint:fix": "eslint 'script.js' --fix",
+    "format": "prettier --write .",
+    "test": "vitest run",
+    "build": "vite build",
+    "optimize:images": "imagemin assets/* -o assets-optimized/"
+  },
+  "devDependencies": {
+    "@eslint/css": "^0.14.1",
+    "@eslint/js": "^10.0.1",
+    "@eslint/json": "^1.0.1",
+    "eslint": "^10.0.0",
+    "globals": "^17.3.0",
+    "prettier": "^3.8.1",
+    "vitest": "^4.0.18"
+  },
+  "dependencies": {
+    "lodash": "4.17.4"
+  }
 }
