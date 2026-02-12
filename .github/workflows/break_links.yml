@@ -1,0 +1,19 @@
+name: Comprobación de enlaces rotos
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+jobs:
+  broken-links:
+    name: Link Checker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Instalar herramientas
+        run: npm install -g linkinator http-server
+      - name: Servir sitio
+        run: |
+          http-server -p 8000 . &
+          npx linkinator http://localhost:8000 --retryErrors
