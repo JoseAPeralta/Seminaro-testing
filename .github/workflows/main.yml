@@ -13,7 +13,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '24'
+      - name: Instalar dependencias
+        run: npm ci
       - name: Minificar CSS/JS
-        run: |
-          npx --yes terser script.js -o script.min.js -c -m
-          npx --yes -p clean-css-cli cleancss -o style.min.css style.css
+        run: npm run minify
