@@ -27,6 +27,10 @@ jobs:
     uses: ./.github/workflows/test.yml
     with:
       input_artifact: site-minified
+
+  lint:
+    needs: minify
+    uses: ./.github/workflows/lint.yml
   
   lighthouse:
     needs: test
