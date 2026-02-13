@@ -21,7 +21,14 @@ jobs:
       js_path: "script.js"
       css_path: "style.css"
       artifact_name: "site-minified"
-
+      
+  test:
+    needs: minify
+    uses: ./.github/workflows/vitest.yml
+    with:
+      input_artifact: site-minified
+      workdir: site
+  
   lighthouse:
     needs: minify
     uses: ./.github/workflows/lightHouse.yml
