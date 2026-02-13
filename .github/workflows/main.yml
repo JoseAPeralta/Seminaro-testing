@@ -1,20 +1,57 @@
-name: Optimización de assets
+name: Deploy Pages (minified in CI)
+
 on:
   push:
-    branches: [ main ]
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
 jobs:
-  optimize:
-    name: Optimizar Imágenes y Código
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v4
         with:
-          node-version: '24'
-      - name: Minificar CSS/JS
+          node-version: "20"
+
+      - name: Preparar carpeta de publicación (site/)
         run: |
-          npm i -D terser@5 clean-css-cli@5
-          npx terser script.js -o script.min.js -c -m
-          npx cleancss -o style.min.css style.css
+          mkdir -p site
+          rsync -av --delete \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='node_modules' \
+            ./ site/
+
+      - name: Minificar CSS/JS (mismo nombre)
+        run: |
+          # JS: sobrescribe script.js
+          npx --yes terser site/script.js -o site/script.js -c -m
+
+          # CSS: sobrescribe style.css (lo hacemos con archivo temporal)
+          npx --yes -p clean-css-cli cleancss -o site/style.css.tmp site/style.css
+          mv site/style.css.tmp site/style.css
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
