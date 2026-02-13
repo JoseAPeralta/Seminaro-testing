@@ -15,5 +15,5 @@ jobs:
           node-version: '24'
       - name: Minificar CSS/JS
         run: |
-          npx --yes terser ./script.js -o ./script.min.js -c -m
-          npx --yes -p clean-css-cli cleancss -o ./style.min.css ./style.css
+          npx --yes terser script.js -o script.min.js -c -m
+          npx --yes -p clean-css-cli cleancss -o style.min.css style.css
