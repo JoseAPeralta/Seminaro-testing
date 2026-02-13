@@ -1,9 +1,8 @@
 name: Comprobación de enlaces rotos
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  workflow_dispatch:
+  workflow_call:
+
 jobs:
   broken-links:
     name: Link Checker
