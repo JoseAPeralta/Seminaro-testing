@@ -1,6 +1,7 @@
 name: minify
 
 on:
+  workflow_dispatch:
   workflow_call:
     inputs:
       js_path:
