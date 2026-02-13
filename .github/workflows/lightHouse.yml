@@ -1,74 +1,53 @@
-name: Deploy Pages + Lighthouse Report
+name: _lighthouse_report
 
 on:
-  push:
-    branches: [main]
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: true
+  workflow_call:
+    inputs:
+      input_artifact:
+        type: string
+        required: false
+        default: "site-minified"
+      output_artifact:
+        type: string
+        required: false
+        default: "site-ready"
+      port:
+        type: number
+        required: false
+        default: 8000
 
 jobs:
-  build_report:
+  lighthouse:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-
-      - name: Setup Node (para LHCI)
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: "20"
 
-      - name: Preparar carpeta de publicación (site/)
-        run: |
-          mkdir -p site
-          # Copia todo el sitio al staging dir, excluyendo cosas no publicables
-          rsync -av --delete \
-            --exclude='.git' \
-            --exclude='.github' \
-            --exclude='node_modules' \
-            --exclude='.lighthouseci' \
-            --exclude='report' \
-            ./ site/
+      - name: Descargar sitio minificado
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.input_artifact }}
+          path: site
 
-      - name: Servir sitio con Python (background)
+      - name: Servir site/ con Python (background)
         run: |
-          python3 -m http.server 8000 --bind 127.0.0.1 --directory site &
+          python3 -m http.server ${{ inputs.port }} --bind 127.0.0.1 --directory site &
           sleep 2
 
-      - name: Generar Lighthouse Report en /report/
+      - name: Generar Lighthouse Report en site/report/index.html
         run: |
           mkdir -p site/report
-          # Target filesystem: escribe reportes en disco (sin servidor LHCI)
-          # outputDir + reportFilenamePattern son opciones del target filesystem. :contentReference[oaicite:1]{index=1}
           npx --yes @lhci/cli autorun \
-            --collect.url=http://127.0.0.1:8000/ \
+            --collect.url=http://127.0.0.1:${{ inputs.port }}/ \
             --collect.numberOfRuns=1 \
             --upload.target=filesystem \
             --upload.outputDir=./site/report \
             --upload.reportFilenamePattern=index.%%EXTENSION%%
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Subir artifact listo para deploy (incluye /report/)
+        uses: actions/upload-artifact@v4
         with:
+          name: ${{ inputs.output_artifact }}
           path: site
-
-  deploy:
-    needs: build_report
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          retention-days: 7
