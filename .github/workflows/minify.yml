@@ -6,11 +6,11 @@ on:
       js_path:
         type: string
         required: false
-        default: "script.js"
+        default: "*.js"
       css_path:
         type: string
         required: false
-        default: "style.css"
+        default: "*.css"
       artifact_name:
         type: string
         required: false
