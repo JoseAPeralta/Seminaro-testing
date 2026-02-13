@@ -30,7 +30,7 @@ jobs:
 
   lint:
     needs: minify
-    uses: ./.github/workflows/lint.yml
+    uses: ./.github/workflows/lint_and_format.yml
   
   lighthouse:
     needs: test
