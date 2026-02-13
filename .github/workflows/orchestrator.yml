@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   minify:
-    uses: ./.github/workflows/_minify.yml
+    uses: ./.github/workflows/minify.yml
     with:
       js_path: "script.js"
       css_path: "style.css"
@@ -23,7 +23,7 @@ jobs:
 
   lighthouse:
     needs: minify
-    uses: ./.github/workflows/_lighthouse_report.yml
+    uses: ./.github/workflows/lightHouse.yml
     with:
       input_artifact: "site-minified"
       output_artifact: "site-ready"
