@@ -37,7 +37,7 @@ jobs:
           path: ${{ inputs.workdir }}
 
       - name: Instalar dependencias
-        run: npm ci
+        run: npm install
         working-directory: ${{ github.event_name == 'workflow_call' && inputs.workdir || '.' }}
 
       - name: Ejecutar pruebas
