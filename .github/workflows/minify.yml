@@ -46,11 +46,15 @@ jobs:
           if [ ! -f "$CSS" ]; then echo "No existe $CSS"; exit 1; fi
 
           # JS
-          npx --yes terser "$JS" -o "$JS" -c -m
+          find site -type f -name "*.js" ! -name "*.min.js" -print0 | while IFS= read -r -d '' f; do
+          npx --yes terser "$f" -o "$f" -c -m
+          done
 
           # CSS
-          npx --yes -p clean-css-cli cleancss -o "${CSS}.tmp" "$CSS"
-          mv "${CSS}.tmp" "$CSS"
+          find site -type f -name "*.css" ! -name "*.min.css" -print0 | while IFS= read -r -d '' f; do
+          npx --yes -p clean-css-cli cleancss -o "${f}.tmp" "$f"
+          mv "${f}.tmp" "$f"
+          done
 
       - name: Subir artifact con el sitio minificado
         uses: actions/upload-artifact@v4
