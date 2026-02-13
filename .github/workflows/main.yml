@@ -1,0 +1,23 @@
+name: Optimización de assets
+on:
+  push:
+    branches: [ main ]
+jobs:
+  optimize:
+    name: Optimizar Imágenes y Código
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Build (si aplica)
+        run: |
+          npm ci
+          npm run build  # asume que build genera carpeta dist/
+      - name: Comprimir imágenes (image-actions)
+        # Usando Action de Calibre para imágenes en PRs
+        uses: calibreapp/image-actions@main
+      - name: Minificar CSS/JS
+        run: |
+          npm install -g terser-cli clean-css-cli
+          terser dist/script.js -o dist/script.min.js --compress --mangle
+          cleancss -o dist/style.min.css dist/style.css
