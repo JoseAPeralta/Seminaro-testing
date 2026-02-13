@@ -24,13 +24,13 @@ jobs:
       
   test:
     needs: minify
-    uses: ./.github/workflows/vitest.yml
+    uses: ./.github/workflows/test.yml
     with:
       input_artifact: site-minified
       workdir: site
   
   lighthouse:
-    needs: minify
+    needs: test
     uses: ./.github/workflows/lightHouse.yml
     with:
       input_artifact: "site-minified"
