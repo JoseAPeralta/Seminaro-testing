@@ -18,7 +18,7 @@ jobs:
         run: npm ci
       - name: Ejecutar ESLint con autocorrección
         # `--fix` aplica correcciones automáticas conocidas[object Object]
-        run: npx eslint "**/*.{js,mjs,cjs}"
+        run: npx eslint "**/*.{js,mjs,cjs}" --fix
       - name: Ejecutar Prettier para formateo
         # `--write` reescribe los archivos aplicando formato[object Object]
         run: npx prettier --write .
