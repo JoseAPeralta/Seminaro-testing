@@ -46,16 +46,23 @@ jobs:
           if [ ! -f "$JS" ]; then echo "No existe $JS"; exit 1; fi
           if [ ! -f "$CSS" ]; then echo "No existe $CSS"; exit 1; fi
 
-          # JS
-          find site -type f -name "*.js" ! -name "*.min.js" -print0 | while IFS= read -r -d '' f; do
-          npx --yes terser "$f" -o "$f" -c -m
+            # 1) Minificar TODOS los CSS (sobrescribe el mismo archivo)
+          find site -type f -name "*.css" ! -name "*.min.css" -print0 | while IFS= read -r -d '' f; do
+            npx --yes -p clean-css-cli cleancss -o "${f}.tmp" "$f"
+            mv "${f}.tmp" "$f"
           done
 
-          # CSS
-          find site -type f -name "*.css" ! -name "*.min.css" -print0 | while IFS= read -r -d '' f; do
-          npx --yes -p clean-css-cli cleancss -o "${f}.tmp" "$f"
-          mv "${f}.tmp" "$f"
+          # 2) Minificar TODOS los JS (sobrescribe el mismo archivo)
+          find site -type f -name "*.js" ! -name "*.min.js" -print0 | while IFS= read -r -d '' f; do
+            # Si es módulo (tiene import/export), terser debe usar --module
+            if grep -qE '^\s*(import|export)\s' "$f"; then
+              npx --yes terser "$f" -o "${f}.tmp" -c -m --module
+            else
+              npx --yes terser "$f" -o "${f}.tmp" -c -m
+            fi
+            mv "${f}.tmp" "$f"
           done
+
 
       - name: Subir artifact con el sitio minificado
         uses: actions/upload-artifact@v4
