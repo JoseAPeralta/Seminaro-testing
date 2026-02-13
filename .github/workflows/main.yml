@@ -1,20 +1,23 @@
-name: Deploy Pages (minified in CI)
+name: _minify
 
 on:
-  push:
-    branches: [main]
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: true
+  workflow_call:
+    inputs:
+      js_path:
+        type: string
+        required: false
+        default: "script.js"
+      css_path:
+        type: string
+        required: false
+        default: "style.css"
+      artifact_name:
+        type: string
+        required: false
+        default: "site-minified"
 
 jobs:
-  build:
+  minify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -23,35 +26,35 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Preparar carpeta de publicación (site/)
+      - name: Copiar sitio a site/ (staging)
         run: |
           mkdir -p site
           rsync -av --delete \
             --exclude='.git' \
             --exclude='.github' \
             --exclude='node_modules' \
+            --exclude='.lighthouseci' \
+            --exclude='report' \
             ./ site/
 
-      - name: Minificar CSS/JS (mismo nombre)
+      - name: Minificar (sobrescribe mismo nombre dentro de site/)
         run: |
-          # JS: sobrescribe script.js
-          npx --yes terser site/script.js -o site/script.js -c -m
+          JS="site/${{ inputs.js_path }}"
+          CSS="site/${{ inputs.css_path }}"
 
-          # CSS: sobrescribe style.css (lo hacemos con archivo temporal)
-          npx --yes -p clean-css-cli cleancss -o site/style.css.tmp site/style.css
-          mv site/style.css.tmp site/style.css
+          if [ ! -f "$JS" ]; then echo "No existe $JS"; exit 1; fi
+          if [ ! -f "$CSS" ]; then echo "No existe $CSS"; exit 1; fi
 
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+          # JS
+          npx --yes terser "$JS" -o "$JS" -c -m
+
+          # CSS
+          npx --yes -p clean-css-cli cleancss -o "${CSS}.tmp" "$CSS"
+          mv "${CSS}.tmp" "$CSS"
+
+      - name: Subir artifact con el sitio minificado
+        uses: actions/upload-artifact@v4
         with:
+          name: ${{ inputs.artifact_name }}
           path: site
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+          retention-days: 7
