@@ -1,0 +1,59 @@
+name: Orquestador (minify -> lighthouse -> deploy)
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  minify:
+    uses: ./.github/workflows/_minify.yml
+    with:
+      js_path: "script.js"
+      css_path: "style.css"
+      artifact_name: "site-minified"
+
+  lighthouse:
+    needs: minify
+    uses: ./.github/workflows/_lighthouse_report.yml
+    with:
+      input_artifact: "site-minified"
+      output_artifact: "site-ready"
+      port: 8000
+
+  deploy:
+    needs: lighthouse
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Descargar sitio listo (incluye /report/)
+        uses: actions/download-artifact@v4
+        with:
+          name: "site-ready"
+          path: site
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload Pages artifact (único)
+        uses: actions/upload-pages-artifact@v3
+        with:
+          name: pages-site
+          path: site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+        with:
+          artifact_name: pages-site
