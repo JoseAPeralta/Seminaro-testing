@@ -9,6 +9,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+      - name: Setup Node.js
+            uses: actions/setup-node@v4
+        with:
+          node-version: '24'
       - name: Minificar CSS/JS
         run: |
           npm install -g terser-cli clean-css-cli
