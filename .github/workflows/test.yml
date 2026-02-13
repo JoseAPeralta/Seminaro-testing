@@ -8,38 +8,42 @@ on:
         type: string
         required: false
         default: "site-minified"
-      workdir:
-        type: string
-        required: false
-        default: "site"
 
 jobs:
   test:
     name: Vitest
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout (necesario para package-lock y tests)
+        uses: actions/checkout@v5
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "24"
+          node-version: "20"
 
-      # Si lo ejecutas manual (workflow_dispatch), prueba el repo tal cual (sin minify)
-      - name: Checkout (solo manual)
-        if: github.event_name == 'workflow_dispatch'
-        uses: actions/checkout@v5
-
-      # Si lo llama el orquestador, usamos el sitio minificado del artifact
-      - name: Descargar artifact minificado (solo workflow_call)
+      # Solo cuando lo llama el orquestador: trae el sitio minificado
+      - name: Descargar artifact minificado
         if: github.event_name == 'workflow_call'
         uses: actions/download-artifact@v4
         with:
           name: ${{ inputs.input_artifact }}
-          path: ${{ inputs.workdir }}
+          path: site
 
-      - name: Instalar dependencias
-        run: npm install
-        working-directory: ${{ github.event_name == 'workflow_call' && inputs.workdir || '.' }}
+      - name: Reemplazar assets por los minificados (solo workflow_call)
+        if: github.event_name == 'workflow_call'
+        run: |
+          # Copia TODOS los CSS/JS minificados desde site/ a la misma ruta en el workspace
+          # (rsync crea carpetas y sobreescribe)
+          rsync -av \
+            --include='*/' \
+            --include='*.css' \
+            --include='*.js' \
+            --exclude='*' \
+            site/ ./
+
+      - name: Instalar dependencias (usa package-lock del repo)
+        run: npm ci
 
       - name: Ejecutar pruebas
         run: npm test
-        working-directory: ${{ github.event_name == 'workflow_call' && inputs.workdir || '.' }}
