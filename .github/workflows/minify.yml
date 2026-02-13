@@ -1,4 +1,4 @@
-name: _minify
+name: minify
 
 on:
   workflow_call:
