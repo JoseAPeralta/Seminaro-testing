@@ -9,13 +9,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-      - name: Build (si aplica)
-        run: |
-          npm ci
-          npm run build  # asume que build genera carpeta dist/
-      - name: Comprimir imágenes (image-actions)
-        # Usando Action de Calibre para imágenes en PRs
-        uses: calibreapp/image-actions@main
       - name: Minificar CSS/JS
         run: |
           npm install -g terser-cli clean-css-cli
